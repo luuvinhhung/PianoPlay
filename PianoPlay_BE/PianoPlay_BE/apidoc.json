@@ -1,0 +1,9 @@
+{
+  "name": "Example Project",
+  "version": "1.0.0",
+  "description": "apiDoc basic example",
+  "apidoc": {
+    "title": "QLVT ApiDoc",
+    "url" : "http://localhost:50354/api"
+  }
+}
