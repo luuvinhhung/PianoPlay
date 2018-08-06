@@ -51,7 +51,7 @@ namespace PianoPlay_BE.Controllers
          */
 
         [HttpGet]
-        public IHttpActionResult GetAll(int page, int pageSize, string filter = null)
+        public IHttpActionResult GetAllByPage(int page, int pageSize, string filter = null)
         {
             int totalRow = 0;
             var model = _userManager.Users.Select(x => new AccountModel
@@ -65,6 +65,23 @@ namespace PianoPlay_BE.Controllers
             if (!string.IsNullOrEmpty(filter))
                 model = model.Where(x => x.username.Contains(filter) || x.fullName.Contains(filter));
             var list = model.OrderBy(x => x.fullName).Skip((page - 1) * pageSize).Take(pageSize);
+            return Ok(list);
+        }
+        [HttpGet]
+        public IHttpActionResult GetAll()
+        {
+            int totalRow = 0;
+            var model = _userManager.Users.Select(x => new AccountModel
+            {
+                email = x.Email,
+                username = x.UserName,
+                Id = x.Id,
+                fullName = x.FullName,
+                phoneNumber = x.PhoneNumber
+            });
+            totalRow = model.Count();
+            
+            var list = model.OrderBy(x => x.fullName);
             return Ok(list);
         }
 

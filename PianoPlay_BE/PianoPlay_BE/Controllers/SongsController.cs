@@ -53,7 +53,7 @@ namespace PianoPlay_BE.Controllers
             });
             totalRow = model.Count();
 
-            var list = model.OrderBy(x => x.Name);
+            var list = model.OrderBy(x => x.Id);
             return Ok(list);
         }
         //Lấy thông tin bài hát theo tên bài hát
