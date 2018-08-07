@@ -49,7 +49,8 @@ namespace PianoPlay_BE.Controllers
                 Id = x.Id,
                 UserId = x.UserId,
                 Name = x.Name,
-                KeyIds = x.KeyIds
+                KeyIds = x.KeyIds,
+                CreatedDate = x.CreatedDate
             });
             totalRow = model.Count();
 
@@ -155,6 +156,7 @@ namespace PianoPlay_BE.Controllers
                 Songs.UserId = model.UserId;
                 Songs.Name = StandardString.StandardSongName(model.Name);
                 Songs.KeyIds = model.KeyIds;
+                Songs.CreatedDate = model.CreatedDate;
                 Songs = db.Songs.Add(Songs);
                 db.SaveChanges();
                 httpActionResult = Ok(new SongsModel(Songs));

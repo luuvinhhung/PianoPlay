@@ -9,8 +9,8 @@ namespace PianoPlay_BE.Model
         [Column(TypeName = "VARCHAR")]
         [Required(ErrorMessage ="Tên là bắt buộc!")]
         public string Name { get; set; }
-        public long UserId { get; set; }
+        public string UserId { get; set; }
         public string KeyIds { get; set; }
-       
+        public string CreatedDate { get; set; }
     }
 }

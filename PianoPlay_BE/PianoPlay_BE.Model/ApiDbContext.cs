@@ -54,7 +54,9 @@ namespace PianoPlay_BE.Model
             {
                 UserName = "admin",
                 Email = "admin@test.com",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                FullName = "Admin",
+                Status = true
             };
 
             userManager.Create(account, "Abc123!!!");

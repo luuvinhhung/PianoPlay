@@ -77,45 +77,15 @@ namespace PianoPlay_BE.Controllers
                 username = x.UserName,
                 Id = x.Id,
                 fullName = x.FullName,
-                phoneNumber = x.PhoneNumber
+                phoneNumber = x.PhoneNumber,
+                Status = x.Status
             });
             totalRow = model.Count();
-            
+            model = model.Where(x => x.Status == true);
             var list = model.OrderBy(x => x.fullName);
             return Ok(list);
         }
-
-        //Lấy thông tin nhân viên theo username
-        /**
-         * @api {Get} /Accounts/GetByUserName?username={username} Lấy thông tin nhân viên theo username
-         * @apigroup Accounts
-         * @apiPermission none
-         * @apiVersion 1.0.0
-         *
-         * @apiSuccess {long} Id Id của nhân viên
-         * @apiSuccess {string} username Username nhân viên
-         * @apiSuccess {string} email email nhân viên
-         * @apiSuccess {string} fullName Họ tên
-         * @apiSuccess {string} phoneNumber Số điện thoại
-         * @apiSuccess {string} branch_id Mã chi nhánh
-         *
-         * @apiSuccessExample {json} Response:
-         * {
-         *   "username": "admin",
-         *  "email": "admin@test.com",
-         *  "Id": "36cd045c-94a3-48a2-9a3d-05c603011b3f",
-         *  "fullName": null,
-         *  "phoneNumber": null
-         *  "Branch_id" : 1
-         * }
-         * @apiError (Error 404) {string} Errors Mảng các lỗi
-         * @apiErrorExample {json} Error-Response:
-         *     HTTP/1.1 404 Not Found
-         *     {
-         *       "error": "Not Found"
-         *     }
-         *
-         */
+        
 
         [HttpGet]
         public IHttpActionResult GetByUsername(string username)
@@ -135,78 +105,22 @@ namespace PianoPlay_BE.Controllers
                     username = user.UserName,
                     Id = user.Id,
                     fullName = user.FullName,
-                    phoneNumber = user.PhoneNumber
+                    phoneNumber = user.PhoneNumber,
+                    Status = user.Status
                 });
             }
             return httpActionResult;
         }
-        //Thêm mới nhân viên 
-        /**
-        * @api {POST} /Accounts/Create Tạo mới nhân viên 
-        * @apigroup Accounts
-        * @apiPermission none
-        * @apiVersion 1.0.0
-        *
-         * @apiParam {string} avatar Avatar của nhân viên
-         * @apiParam {string} username User name nhân viên
-         * @apiParam {string} password Password của nhân viên
-         * @apiParam {string} email Email nhân viên
-         * @apiParam {string} fullname Họ tên nhân viên
-         * @apiParam {int} BranchId Id chi nhánh
-         * @apiParam {string} phonenumber Sdt nhân viên
-        *
-        * @apiParamExample {json} Request-Example:
-        * {
-        *         avatar:"avatar.jpg",
-        *         username:"doduchuy123",
-	    *         password:"Banhmi123",
-	    *         email:"dodu1123c@gmail.com",
-        *         phonenumber:"016826373",
-	    *         fullname:"Do duc huy",
-	    *         BranchId:1
-        * }
-        *
-         *  @apiSuccess {string} Id Id của nhân viên
-         *  @apiSuccess {string} username User name nhân viên
-         *  @apiSuccess {string} email Email nhân viên
-         *  @apiSuccess {long} BranchId Id chi nhánh nhân viên
-         *  @apiSuccess {string} fullName Họ tên nhân viên
-         *  @apiSuccess {string} phoneNumber Sdt nhân viên
-         * 
-        *
-         * @apiSuccessExample {json} Response:
-         * {
-         *     
-         *      Avatar: "avatar.jpg",
-         *      username: "doduchuy123",
-         *      email: "dodu1123c@gmail.com",
-         *      Id: "a0f9fba2-1c04-4900-b51f-bea8fb7d41ad",
-         *      fullName: "Do duc huy",
-         *      phoneNumber: "016826373",
-         *      BranchId: 1
-         *     
-         *     
-         *     
-         * }
-        *
-        * @apiError (Error 404) {string} Errors Mảng các lỗi
-        * @apiErrorExample {json} Error-Response:
-        *     HTTP/1.1 400 Bad Request
-        *     {
-        *       "error": "BranchId is required",
-        *       "error": "Vui lòng nhập sdt"
-        *     }
-        *
-        */
+        
         [HttpPost]
         public async Task<IHttpActionResult> Create(CreateAccountModel model)
         {
             IHttpActionResult httpActionResult;
             if (string.IsNullOrEmpty(model.fullName))
-            {
-                error.Add("Full Name is required");
-                httpActionResult = new ErrorActionResult(Request, HttpStatusCode.BadRequest, error);
-            }
+            //{
+            //    error.Add("Full Name is required");
+            //    httpActionResult = new ErrorActionResult(Request, HttpStatusCode.BadRequest, error);
+            //}
             if (string.IsNullOrEmpty(model.password))
             {
                 error.Add("Password is required");
@@ -229,10 +143,10 @@ namespace PianoPlay_BE.Controllers
                 acc.UserName = model.username;
                 acc.FullName = model.fullName;
                 acc.Email = model.email;
+                acc.Status = true;
                 acc.PhoneNumber = model.phoneNumber;
                 userManager.Create(acc, model.password);
                 await userManager.AddToRolesAsync(acc.Id, "User");
-                //acc.Song = db.Branches.FirstOrDefault(x=>x.Id==model.BranchId);
                 httpActionResult = Ok(new AccountModel(acc));
             }
             else
@@ -241,72 +155,7 @@ namespace PianoPlay_BE.Controllers
             }
             return httpActionResult;
         }
-        //Sửa thông tin nhân viên
-        /**
-        * @api {PUT} /Accounts/Update Sửa thông tin nhân viên
-        * @apigroup Accounts
-        * @apiPermission none
-        * @apiVersion 1.0.0
-        *
-        * @apiParam {string} Id Id Nhân viên
-        *  @apiParam {int} BranchId Id chi nhánh
-         * @apiParam {string} Avatar Ảnh đại diện của nhân viên
-         * @apiParam {string} Username User name nhân viên
-         * @apiParam {string} Email Email nhân viên
-         * @apiParam {string} FullName Họ Tên nhân viên
-         * @apiParam {string} Password Password tài khoản nhân viên
-         * @apiParam {string} PhoneNumber Sdt nhân viên
-        *
-        * @apiParamExample {json} Request-Example:
-        * {
-        *      Avatar: "abc.jpg",
-        *      username: "duchuy123",
-        *      email: "doduchuy123@gmail.com",
-        *      Id: "2d844a6c-402d-4286-b230-3179f644addf",
-        *      fullName: "Do Duc Huy",
-        *      password:"abc123B",
-        *      phoneNumber: "017393938",
-        *      BranchId: 1
-        *        
-        * }
-        *
-        * @apiSuccess {string} Avatar Ảnh đại diện của nhân viên
-        *  @apiSuccess {string} Id Id của nhân viên
-         *  @apiSuccess {string} username User name nhân viên
-         *  @apiSuccess {string} email Email nhân viên
-         *  @apiSuccess {int} BranchId Id chi nhánh nhân viên
-         *  @apiSuccess {string} BranchName Tên chi nhánh nhân viên
-         *  @apiSuccess {string} fullName Họ tên nhân viên
-         *  @apiSuccess {string} phoneNumber Sdt nhân viên
-         * 
-        *
-         * @apiSuccessExample {json} Response:
-         * {
-         *      "Avatar": "abc.jpg",
-         *      "username": "duchuy123",
-         *      "email": "doduchuy123@gmail.com",
-         *      "Id": "2d844a6c-402d-4286-b230-3179f644addf",
-         *      "fullName": "Do Duc Huy",
-         *      "phoneNumber": "017393938",
-         *      "BranchId": 1,
-         *      "BranchName": "Highland 1"
-         *     
-         *      
-         *      
-         * }
-        *
-        * @apiError (Error 404) {string} Errors Mảng các lỗi
-        * @apiErrorExample {json} Error-Response:
-        *     HTTP/1.1 400 Bad Request
-        *     {
-        *        "error": "BranchId is required",
-        *        "error": "Phone number is not correct!"
-        *        "error": "User Name is required"
-        *        "error": "Full Name is required"
-        *        "error": "Password is required"
-        *     }
-        *
-        */
+        
         [HttpPut]
         public IHttpActionResult Update(EditAccountModel model)
         {
@@ -348,7 +197,7 @@ namespace PianoPlay_BE.Controllers
                 account.FullName = model.fullName ?? model.fullName;
                 account.Email = model.email ?? model.email;
                 account.PhoneNumber = model.phoneNumber ?? model.phoneNumber;
-                //account.Branch = db.Branches.FirstOrDefault(x => x.Id == model.BranchId);
+                account.Status = model.Status;
                 if (!string.IsNullOrEmpty(model.password))
                 {
                     userManager.RemovePassword(model.Id);
@@ -366,26 +215,7 @@ namespace PianoPlay_BE.Controllers
             return httpActionResult;
         }
 
-        //Xóa 1 nhân viên
-
-        /**
-     * @api {DELETE} /Accounts/Delete?code={code} Xóa 1 nhân viên
-     * @apigroup Accounts
-     * @apiPermission none
-     * @apiVersion 1.0.0
-     *
-     * @apiSuccessExample {json} Response:
-     * {
-     *      "Success"
-     * }
-     * @apiError (Error 404) {string} Errors Mảng các lỗi
-     * @apiErrorExample {json} Error-Response:
-     *     HTTP/1.1 404 Not Found
-     *     {
-     *       "error": "Not Found"
-     *     }
-     *
-     */
+       
         [HttpDelete]
         public IHttpActionResult Delete(string code)
         {

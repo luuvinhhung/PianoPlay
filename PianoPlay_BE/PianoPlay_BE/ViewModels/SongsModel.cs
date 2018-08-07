@@ -9,9 +9,10 @@ namespace PianoPlay_BE.Model
     public class SongsModel
     {
         public long Id { get; set; }
-        public long UserId { get; set; }
+        public string UserId { get; set; }
         public string Name { get; set; }
         public string KeyIds { get; set; }
+        public string CreatedDate { get; set; }
 
         public SongsModel() { }
         public SongsModel(Songs song)
@@ -20,13 +21,15 @@ namespace PianoPlay_BE.Model
             UserId = song.UserId;
             Name = song.Name;
             KeyIds = song.KeyIds;
+            CreatedDate = song.CreatedDate;
         }
     }
     public class CreateSongModel
     {
-        public long UserId { get; set; }
+        public string UserId { get; set; }
         public string Name { get; set; }
         public string KeyIds { get; set; }
+        public string CreatedDate { get; set; }
     }
     public class EditSongModel : CreateSongModel
     {

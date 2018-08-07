@@ -25,7 +25,7 @@ namespace PianoPlay_BE.Model
             return userIdentity;
         }
 
-        public bool IsRoot { get; set; }
+        public bool Status { get; set; }
         public string FullName { get; set; }
 
         public virtual Songs Songs { get; set; }
