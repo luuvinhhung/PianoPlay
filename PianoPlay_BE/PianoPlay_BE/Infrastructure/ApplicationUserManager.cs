@@ -31,7 +31,7 @@ namespace PianoPlay_BE.Infrastructure
             userManager.UserValidator = new UserValidator<Account>(userManager)
             {
                 AllowOnlyAlphanumericUserNames = false,
-                RequireUniqueEmail = true
+                RequireUniqueEmail = false
             };
 
             //userManager.EmailService = new EmailService();

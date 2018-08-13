@@ -10,7 +10,7 @@ using System.Web.Http;
 
 namespace PianoPlay_BE.Controllers
 {
-    //[Authorize(Roles = "Admin")]
+    
     public class SongsController : ApiController
     {
         private ApiDbContext db;
@@ -30,14 +30,18 @@ namespace PianoPlay_BE.Controllers
          * @apiVersion 1.0.0
          *
          * @apiSuccess {long} Id Id của bài hát
+         * @apiSuccess {string} UserId Id người sỡ hữu bài hát
          * @apiSuccess {string} Name Tên bài hát
          * @apiSuccess {string} KeyIds KeyId
+         * @apiSuccess {string} CreatedDate ngày tạo bài hát
+         * 
          * @apiSuccessExample {json} Response:
          * {
-         *      Id:1,
-         *      UserId: 1,
-         *      Name: "bài hát 1",
-         *      KeyIds: "16161616"
+         *      "Id": 1,
+         *      "UserId": 1,
+         *      "Name": "bài hát 1",
+         *      "KeyIds": "16161616",
+         *      "CreatedDate": "Sun Aug 12 2018 22:16:14 GMT+0700 (Giờ Đông Dương)"
          * }
          */
         [HttpGet]
@@ -57,50 +61,6 @@ namespace PianoPlay_BE.Controllers
             var list = model.OrderBy(x => x.Id);
             return Ok(list);
         }
-        //Lấy thông tin bài hát theo tên bài hát
-
-        /**
-         * @api {GET} /Songs/GetByCode?code={code} Lấy thông tin bài hát theo tên
-         * @apigroup Songs
-         * @apiPermission none
-         * @apiVersion 1.0.0
-         *
-         * @apiSuccess {long} Id Id của bài hát
-         * @apiSuccess {string} Name Tên bài hát
-         * @apiSuccess {string} KeyIds KeyIds
-         *
-         * @apiSuccessExample {json} Response:
-         * {
-         *      Id:1,
-         *      UserId: 1,
-         *      Name: "bài hát 1",
-         *      KeyIds: "16161616"
-         * }
-         * @apiError (Error 404) {string} Errors Mảng các lỗi
-         * @apiErrorExample {json} Error-Response:
-         *     HTTP/1.1 404 Not Found
-         *     {
-         *       "error": "Not Found"
-         *     }
-         *
-         */
-
-        [HttpGet]
-        public IHttpActionResult GetByCode(string name)
-        {
-            IHttpActionResult httpActionResult;
-            Songs Songs = db.Songs.FirstOrDefault(x => x.Name == name);
-            if (Songs == null)
-            {
-                error.Add("Not Found");
-                httpActionResult = new ErrorActionResult(Request, HttpStatusCode.NotFound, error);
-            }
-            else
-            {
-                httpActionResult = Ok(new SongsModel(Songs));
-            }
-            return httpActionResult;
-        }
 
         //Thêm mới bài hát
         /**
@@ -109,14 +69,16 @@ namespace PianoPlay_BE.Controllers
         * @apiPermission none
         * @apiVersion 1.0.0
         *
-         * @apiParam {string} Name Tên bài hát
-         * @apiParam {string} KeyIds KeyId
-        *
+        * @apiParam {string} Name Tên bài hát
+        * @apiParam {string} KeyIds KeyId
+        * @apiParam {string} UserId Mã người tạo bài hát
+        * 
         * @apiParamExample {json} Request-Example:
         * {
-        *      UserId: 1
-        *      Name: "bài hát 1",
-        *      KeyIds: "16161616"
+        *      "UserId": "40906a23-cccf-4d10-816c-de9122e291e3",
+        *      "Name": "bài hát 1",
+        *      "KeyIds": "16161616",
+        *      "CreatedDate": "Sun Aug 12 2018 22:13:03 GMT+0700 (Giờ Đông Dương)"
         * }
         *
          * @apiSuccess {long} Id Id của bài hát vừa tạo
@@ -126,10 +88,11 @@ namespace PianoPlay_BE.Controllers
         *
          * @apiSuccessExample {json} Response:
          * {
-         *      Id:1,
-         *      UserId: 1,
-         *      Name: "bài hát 1",
-         *      KeyIds: "16161616"
+         *      Id: 25,
+         *      "UserId": "40906a23-cccf-4d10-816c-de9122e291e3",
+         *      "Name": "bai hat 1",
+         *      "KeyIds": "35404037",
+         *      "CreatedDate": "Sun Aug 12 2018 22:13:03 GMT+0700 (Giờ Đông Dương)"
          * }
         *
         * @apiError (Error 404) {string} Errors Mảng các lỗi
@@ -175,25 +138,30 @@ namespace PianoPlay_BE.Controllers
         * @apiPermission none
         * @apiVersion 1.0.0
         *
-        * @apiParam {long} Id Id của bài hát
-        * @apiParam {string} Name Tên bài hát
-        *
+        * @apiParam {long} Id Id của bài hát cần chỉnh sửa
+        * @apiParam {string} Name Tên bài hát chỉnh sừa
+        * @apiParam {string} KeyIds KeyIds chỉnh sửa
+        * 
         * @apiParamExample {json} Request-Example:
         * {
-        *      Id:1,
-        *      Name: "bài hát 2",
+        *      "Id":1,
+        *      "Name": "bài hát 2",
+        *      "KeyIds": "16161617"
         * }
         *
          * @apiSuccess {long} Id Id của bài hát vừa sửa
-         * @apiSuccess {string} SongCode Mã của bài hát vừa sửa
          * @apiSuccess {string} Name Tên bài hát vừa sửa
-         * @apiSuccess {string} KeyIds keyids cửa bài hát vừa sửa
+         * @apiSuccess {string} UserId UserId của bài hát vừa sửa
+         * @apiSuccess {string} KeyIds keyids của bài hát vừa sửa
+         * @apiSuccess {CreatedDate} CreatedDate ngày tạo của bài hát vừa sửa
         *
          * @apiSuccessExample {json} Response:
          * {
-         *      Id:1,
-         *      Name: "bài hát 2",
-         *      KeyIds: "16161616"
+         *      "Id":1,
+         *      "UserId": "40906a23-cccf-4d10-816c-de9122e291e3",
+         *      "Name": "bài hát 2",
+         *      "KeyIds": "16161617",
+         *      "CreatedDate": "Sun Aug 12 2018 22:13:03 GMT+0700 (Giờ Đông Dương)"
          * }
         *
         * @apiError (Error 404) {string} Errors Mảng các lỗi
@@ -221,7 +189,8 @@ namespace PianoPlay_BE.Controllers
             }
             else
             {
-                Songs.Name = StandardString.StandardSongName(model.Name) ?? model.Name;
+                Songs.Name = model.Name ?? model.Name;
+                Songs.KeyIds = model.KeyIds ?? model.KeyIds;
                 db.Entry(Songs).State = System.Data.Entity.EntityState.Modified;
                 db.SaveChanges();
                 httpActionResult = Ok(new SongsModel(Songs));

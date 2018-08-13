@@ -25,31 +25,6 @@ namespace PianoPlay_BE.Controllers
             error = new ErrorModel();
         }
 
-        //Lấy thông tin tất cả nhân viên
-        /**
-         * @api {Get} /Accounts/GetAll?page={page}&pageSize={pageSize}&filter={filter} Lấy thông tin tất cả nhân viên
-         * @apigroup Accounts
-         * @apiPermission none
-         * @apiVersion 1.0.0
-         *
-         * @apiSuccess {long} Id Id của nhân viên
-         * @apiSuccess {string} username Username nhân viên
-         * @apiSuccess {string} email email nhân viên
-         * @apiSuccess {string} fullName Họ tên
-         * @apiSuccess {string} phoneNumber Số điện thoại
-         * @apiSuccess {string} branch_id Mã chi nhánh
-         *
-         * @apiSuccessExample {json} Response:
-         * {
-         *   "username": "admin",
-         *  "email": "admin@test.com",
-         *  "Id": "36cd045c-94a3-48a2-9a3d-05c603011b3f",
-         *  "fullName": "Tấn Triều",
-         *  "phoneNumber": "0123456789",
-         *  "Branch_id" : 1
-         * }
-         */
-
         [HttpGet]
         public IHttpActionResult GetAllByPage(int page, int pageSize, string filter = null)
         {
@@ -67,6 +42,32 @@ namespace PianoPlay_BE.Controllers
             var list = model.OrderBy(x => x.fullName).Skip((page - 1) * pageSize).Take(pageSize);
             return Ok(list);
         }
+
+        //Lấy thông tin tất cả account
+        /**
+         * @api {GET} /Accounts/GetAll Lấy thông tin tất cả account
+         * @apigroup Accounts
+         * @apiPermission none
+         * @apiVersion 1.0.0
+         *
+         * @apiSuccess {Boolean} Status đánh dấu trạng thái tồn tại account
+         * @apiSuccess {string} username username đăng nhập account
+         * @apiSuccess {string} email email
+         * @apiSuccess {string} Id Id account
+         * @apiSuccess {string} fullName tên người dùng account
+         * @apiSuccess {string} phoneNumber số đt người dùng account
+         * @apiSuccessExample {json} Response:
+         * {
+         *      "Status": true,
+         *      "username": "hung",
+         *      "email": "hung@gmail.com",
+         *      "Id": "40906a23-cccf-4d10-816c-de9122e291e3",
+         *      "fullName": "Lưu Vĩnh Hùng",
+         *      "phoneNumber": "0901397512"
+         * }
+         */
+
+        //[Authorize(Roles = "Admin")]
         [HttpGet]
         public IHttpActionResult GetAll()
         {
@@ -85,42 +86,63 @@ namespace PianoPlay_BE.Controllers
             var list = model.OrderBy(x => x.fullName);
             return Ok(list);
         }
-        
 
-        [HttpGet]
-        public IHttpActionResult GetByUsername(string username)
-        {
-            IHttpActionResult httpActionResult;
-            var user = _userManager.Users.FirstOrDefault(x => x.UserName == username);
-            if (user == null)
-            {
-                error.Add("Not Found");
-                httpActionResult = new ErrorActionResult(Request, HttpStatusCode.NotFound, error);
-            }
-            else
-            {
-                httpActionResult = Ok(new AccountModel
-                {
-                    email = user.Email,
-                    username = user.UserName,
-                    Id = user.Id,
-                    fullName = user.FullName,
-                    phoneNumber = user.PhoneNumber,
-                    Status = user.Status
-                });
-            }
-            return httpActionResult;
-        }
-        
+        //Thêm mới account
+        /**
+        * @api {POST} /Accounts/create Tạo mới account
+        * @apigroup Accounts
+        * @apiPermission none
+        * @apiVersion 1.0.0
+        *
+        * @apiParam {string} username username đăng nhập account
+        * @apiParam {string} email email
+        * @apiParam {string} Id Id account
+        * @apiParam {string} fullName tên người dùng account
+        * @apiParam {string} phoneNumber số đt người dùng account
+        *
+        * @apiParamExample {json} Request-Example:
+        * {
+        *      "username":"hung",
+	    *      "password":"Abc123!!!",
+	    *      "fullName": "Vinh Hung",
+	    *      "email": "hung@gmail.com",
+	    *      "phoneNumber":"0901397512"
+        * }
+        *
+        * @apiSuccess {Boolean} Status đánh dấu trạng thái tồn tại account
+        * @apiSuccess {string} username username đăng nhập account
+        * @apiSuccess {string} email email
+        * @apiSuccess {string} Id Id account
+        * @apiSuccess {string} fullName tên người dùng account
+        * @apiSuccess {string} phoneNumber số điện thoại người dùng account
+        * @apiSuccessExample {json} Response:
+        * {
+        *      "Status": true,
+        *      "username": "hung",
+        *      "email": "hung@gmail.com",
+        *      "Id": "40906a23-cccf-4d10-816c-de9122e291e3",
+        *      "fullName": "Lưu Vĩnh Hùng",
+        *      "phoneNumber": "0901397512"
+        * }
+        *
+        * @apiError (Error 404) {string} Errors Mảng các lỗi
+        * @apiErrorExample {json} Error-Response:
+        *     HTTP/1.1 400 Bad Request
+        *     {
+        *       "error": "User Name is required"
+        *     }
+        *
+        */
+
         [HttpPost]
         public async Task<IHttpActionResult> Create(CreateAccountModel model)
         {
             IHttpActionResult httpActionResult;
-            if (string.IsNullOrEmpty(model.fullName))
-            //{
-            //    error.Add("Full Name is required");
-            //    httpActionResult = new ErrorActionResult(Request, HttpStatusCode.BadRequest, error);
-            //}
+            if (string.IsNullOrEmpty(model.username))
+            {
+                error.Add("User Name is required");
+                httpActionResult = new ErrorActionResult(Request, HttpStatusCode.BadRequest, error);
+            }
             if (string.IsNullOrEmpty(model.password))
             {
                 error.Add("Password is required");
@@ -155,7 +177,56 @@ namespace PianoPlay_BE.Controllers
             }
             return httpActionResult;
         }
-        
+
+        //Sửa thông tin account
+        /**
+        * @api {PUT} /Accounts/Update Sửa thông tin account
+        * @apigroup Accounts
+        * @apiPermission none
+        * @apiVersion 1.0.0
+        *
+        * @apiParam {string} id id account cần chỉnh sửa
+        * @apiParam {string} username username đăng nhập account
+        * @apiParam {string} email email
+        * @apiParam {string} fullName tên người dùng account
+        * @apiParam {string} phoneNumber số điện thoại người dùng account
+        *
+        * @apiParamExample {json} Request-Example:
+        * {
+        *      "Id": "40906a23-cccf-4d10-816c-de9122e291e3",
+        *      "Status": true,
+        *      "username": "hung",
+        *      "email": "hung@gmail.com",
+        *      "Id": "40906a23-cccf-4d10-816c-de9122e291e3",
+        *      "fullName": "Update",
+        *      "phoneNumber": "0901397512"
+        * }
+        *
+        * @apiParam {string} id id account vừa chỉnh sửa
+        * @apiParam {string} username username đăng nhập vừa chỉnh sửa
+        * @apiParam {string} email email vừa chỉnh sửa
+        * @apiParam {string} fullName tên người dùng vừa chỉnh sửa account
+        * @apiParam {string} phoneNumber số điện thoại người dùng account vừa chỉnh sửa
+        *
+         * @apiSuccessExample {json} Response:
+         * {
+         *      "Status": true,
+         *      "username": "hung",
+         *      "email": "hung@gmail.com",
+         *      "Id": "40906a23-cccf-4d10-816c-de9122e291e3",
+         *      "fullName": "Update",
+         *      "phoneNumber": "0901397512"
+         * }
+        *
+        * @apiError (Error 404) {string} Errors Mảng các lỗi
+        * @apiErrorExample {json} Error-Response:
+        *     HTTP/1.1 400 Bad Request
+        *     {
+        *        "error": "Not Found",
+        *     }
+        *
+        */
+
         [HttpPut]
         public IHttpActionResult Update(EditAccountModel model)
         {
@@ -215,13 +286,32 @@ namespace PianoPlay_BE.Controllers
             return httpActionResult;
         }
 
-       
+        //Xóa 1 account
+        /**
+         * @api {DELETE} /Accounts/Delete?id={id} Xóa 1 account theo Id
+         * @apigroup Accounts
+         * @apiPermission none
+         * @apiVersion 1.0.0
+         *
+         * @apiSuccessExample {json} Response:
+         * {
+         *      "Success"
+         * }
+         * @apiError (Error 404) {string} Errors Mảng các lỗi
+         * @apiErrorExample {json} Error-Response:
+         *     HTTP/1.1 404 Not Found
+         *     {
+         *       "error": "Not Found"
+         *     }
+         *
+         */
+
         [HttpDelete]
-        public IHttpActionResult Delete(string code)
+        public IHttpActionResult Delete(string id)
         {
             IHttpActionResult httpActionResult;
             var userManager = new ApplicationUserManager(new UserStore<Account>(this.db));
-            var user = userManager.Users.FirstOrDefault(x => x.Id == code);
+            var user = userManager.Users.FirstOrDefault(x => x.Id == id);
             if (user == null)
             {
                 error.Add("Not Found");
